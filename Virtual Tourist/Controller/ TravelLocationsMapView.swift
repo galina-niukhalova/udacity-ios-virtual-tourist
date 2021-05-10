@@ -7,23 +7,51 @@
 
 import UIKit
 import MapKit
+import CoreData
 
 class TravelLocationsMapView: UIViewController, MKMapViewDelegate {
     @IBOutlet var mapView: MKMapView!
     
+    var dataController: DataController!
     let defaults = UserDefaults.standard
     let defaultsMapRegionKey = "MapRegion"
+    let photoAlbumStoryboardId = "PhotoAlbumIdentifier"
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         setRegionFromDefaults()
+        loadExistingPins()
         
         addGestureRecognizer(gestureRecognizerType: UILongPressGestureRecognizer.self)
     }
     
     func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
         persistRegion()
+    }
+    
+    // MARK: Load existing pins
+    
+    func loadExistingPins () {
+        let fetchRequest: NSFetchRequest<Pin> = Pin.fetchRequest()
+        let sortDescriptor = NSSortDescriptor(key: "creationDate", ascending: false)
+        fetchRequest.sortDescriptors = [sortDescriptor]
+        
+        let fetchResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: nil)
+        
+        do {
+            try fetchResultsController.performFetch()
+            
+            let pins = fetchResultsController.fetchedObjects ?? []
+        
+            for pin in pins {
+                let coordinate = CLLocationCoordinate2D(latitude: pin.latitude, longitude: pin.longitude)
+                addPinToTheMap(coordinate)
+            }
+        } catch {
+            fatalError("The fetch could not be performed: \(error.localizedDescription)")
+        }
+        
     }
     
     // MARK: Persist the center of the map and the zoom level
@@ -71,20 +99,34 @@ class TravelLocationsMapView: UIViewController, MKMapViewDelegate {
             let location = gestureLongPressRecognizer.location(in: mapView)
             let coordinate = mapView.convert(location, toCoordinateFrom: mapView)
             
-            addPin(coordinate)
+            addPinToTheMap(coordinate)
+            persistPin(coordinate)
         }
     }
     
-    func addPin(_ coordinate: CLLocationCoordinate2D) {
+    func addPinToTheMap(_ coordinate: CLLocationCoordinate2D) {
         let annotation = MKPointAnnotation()
         
         annotation.coordinate = coordinate
         mapView.addAnnotation(annotation)
     }
     
+    func persistPin(_ coordinate: CLLocationCoordinate2D) {
+        let pin = Pin(context: dataController.viewContext)
+        pin.latitude = coordinate.latitude
+        pin.longitude = coordinate.longitude
+        pin.creationDate = Date()
+        
+        try? dataController.viewContext.save()
+    }
+    
     // MARK: Navigate to Photo Album when a pin is tapped
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
+        let photoAlbumViewController = self.storyboard!.instantiateViewController(withIdentifier: photoAlbumStoryboardId)
         
+        navigationController?.pushViewController(photoAlbumViewController, animated: true)
+        
+        mapView.deselectAnnotation(view.annotation, animated: false)
     }
 }

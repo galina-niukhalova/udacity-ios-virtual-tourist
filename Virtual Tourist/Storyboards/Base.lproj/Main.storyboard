@@ -57,6 +57,22 @@
             </objects>
             <point key="canvasLocation" x="688" y="117"/>
         </scene>
+        <!--Photo Album View-->
+        <scene sceneID="qgb-S8-TZj">
+            <objects>
+                <viewController storyboardIdentifier="PhotoAlbumIdentifier" id="fz5-UM-Gp6" customClass="PhotoAlbumView" customModule="Virtual_Tourist" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="J4w-WZ-xsJ">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="4at-uI-aC1"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="lZ3-uh-lC8" customClass="P"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="sj8-fD-VL1" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1420" y="117"/>
+        </scene>
     </scenes>
     <resources>
         <systemColor name="systemBackgroundColor">
