@@ -45,7 +45,7 @@ class FlickrClient {
                 }
                 return
             }
-            print("data: \(data)")
+
             let decoder = JSONDecoder()
             
             do {
