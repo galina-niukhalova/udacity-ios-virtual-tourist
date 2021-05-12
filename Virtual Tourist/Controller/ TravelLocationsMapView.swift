@@ -123,10 +123,16 @@ class TravelLocationsMapView: UIViewController, MKMapViewDelegate {
     // MARK: Navigate to Photo Album when a pin is tapped
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
-        let photoAlbumViewController = self.storyboard!.instantiateViewController(withIdentifier: photoAlbumStoryboardId)
+        let photoAlbumViewController = self.storyboard!.instantiateViewController(withIdentifier: photoAlbumStoryboardId) as! PhotoAlbumView
+        let pinCoordinate = view.annotation?.coordinate
         
-        navigationController?.pushViewController(photoAlbumViewController, animated: true)
-        
-        mapView.deselectAnnotation(view.annotation, animated: false)
+        if let pinCoordinate = pinCoordinate {
+            photoAlbumViewController.latitude = pinCoordinate.latitude
+            photoAlbumViewController.longitude = pinCoordinate.longitude
+            
+            navigationController?.pushViewController(photoAlbumViewController, animated: true)
+            
+            mapView.deselectAnnotation(view.annotation, animated: false)
+        }
     }
 }
