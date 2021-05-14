@@ -13,11 +13,13 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
     @IBOutlet var mapView: MKMapView!
     @IBOutlet var collectionView: UICollectionView!
     @IBOutlet var flowLayout: UICollectionViewFlowLayout!
-    var dataController: DataController!
     
     var pin: Pin!
-    var fetchResultsController: NSFetchedResultsController<Photo>!
+    
+    var dataController: DataController!
+    
     var photosUrl: [String] = []
+    var photos: [Photo] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,31 +27,15 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
         addPinToTheMap()
         zoomIntoRegion()
         
-        getPersistedPhotos()
+        photos = fetchPhotosFromPersistentStore()
         
-        if fetchResultsController?.fetchedObjects?.count == 0 {
-            FlickrClient.getImages(latitude: pin.latitude, longitude: pin.longitude) { (photosUrl, error) in
-                self.photosUrl = photosUrl
-                self.collectionView.reloadData()
-                
-                // No images for the pin
-                if photosUrl.count == 0 {
-                    // TODO: show "No images" label
-                }
-                
-                // TODO: update gallery
-                for url in photosUrl {
-                    self.persistImage(urlString: url)
-                }
-            }
+        if photos.count > 0 {
+            // reload UI
+            collectionView.reloadData()
         } else {
-            print("Load from persisted storage ....")
+            // load photos from Flickr
+            FlickrClient.getImages(latitude: pin.latitude, longitude: pin.longitude, completion: handleLoadingPhotosFromFlickr)
         }
-    }
-    
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        fetchResultsController = nil
     }
     
     override func viewDidLayoutSubviews() {
@@ -74,6 +60,8 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
         flowLayout.itemSize = CGSize(width: dimension, height: dimension)
     }
     
+    // MARK: Map
+    
     func addPinToTheMap() {
         let coordinate = CLLocationCoordinate2D(latitude: pin.latitude, longitude: pin.longitude)
         let annotation = MKPointAnnotation()
@@ -96,36 +84,59 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
     // MARK: Collection data
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        let numberOfPersistedPhotos = fetchResultsController?.sections?[section].numberOfObjects
         let numberUrls = photosUrl.count
         
         if numberUrls > 0 {
             return numberUrls
         }
         
-        return numberOfPersistedPhotos ?? 0
+        return photos.count
     }
     
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PhotoAlbumCellIdentifier", for: indexPath) as! PhotoAlbumCollectionViewCell
+        let placeholderImage = UIImage(named: "VirtualTourist")
         
-        let persistedImages = fetchResultsController.fetchedObjects ?? []
-        print("count: \(fetchResultsController?.sections?[0].numberOfObjects ?? 0)")
-        if persistedImages.count > indexPath.row {
-            if let imageData = persistedImages[indexPath.row].data {
+        // image is downloaded
+        if photos.count > indexPath.row {
+            if let imageData = photos[indexPath.row].data {
                 cell.imageView.image = UIImage(data: imageData)
             } else {
-                cell.imageView.image = UIImage(named: "VirtualTourist")
+                cell.imageView.image = placeholderImage
             }
         } else {
-            cell.imageView.image = UIImage(named: "VirtualTourist")
+            // image is not downloaded yet
+            cell.imageView.image = placeholderImage
         }
         
         return cell
     }
     
-    func persistImage(urlString: String) {
+    // MARK: Flickr
+    
+    func handleLoadingPhotosFromFlickr(photosUrl: [String], error: Error?) {
+        self.photosUrl = photosUrl
+        collectionView.reloadData()
+        
+        // No images for the pin
+        if photosUrl.count == 0 {
+            // TODO: show "No images" label
+        }
+        
+        for url in photosUrl {
+            self.downloadImage(urlString: url) { (data) in
+                let photo = self.addPhotoToPersistentStore(data: data)
+                self.photos.insert(photo, at: 0)
+                
+                DispatchQueue.main.async {
+                    self.collectionView.reloadData()
+                }
+            }
+        }
+    }
+    
+    func downloadImage(urlString: String, completion: @escaping (Data) -> Void) {
         let url = URL(string: urlString)
         
         if let url = url {
@@ -135,21 +146,29 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
                     return
                 }
                 
-                let photo = Photo(context: self.dataController.viewContext)
-                
-                photo.pin = self.pin
-                photo.data = data
-                photo.creationDate = Date()
-                    
-                try? self.dataController.viewContext.save()
-
+                completion(data)
             }
             
             imageTask.resume()
         }
     }
     
-    func getPersistedPhotos() {
+    // MARK: Persistent Store
+    
+    func addPhotoToPersistentStore(data: Data) -> Photo {
+        let photo = Photo(context: self.dataController.viewContext)
+        
+        photo.pin = self.pin
+        photo.data = data
+        photo.creationDate = Date()
+        
+        try? self.dataController.viewContext.save()
+        
+        return photo
+    }
+    
+    
+    func fetchPhotosFromPersistentStore() -> [Photo] {
         let fetchRequest: NSFetchRequest<Photo> = Photo.fetchRequest()
         
         // sort
@@ -159,10 +178,9 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
         // filter by pin
         fetchRequest.predicate = NSPredicate(format: "pin == %@", pin)
         
-        fetchResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: nil)
-        
         do {
-            try fetchResultsController.performFetch()
+            let result = try dataController.viewContext.fetch(fetchRequest)
+            return result
         } catch {
             fatalError("The fetch could not be performed: \(error.localizedDescription)")
         }

@@ -58,10 +58,10 @@
             </objects>
             <point key="canvasLocation" x="688" y="117"/>
         </scene>
-        <!--Photo Album View-->
+        <!--Photo Album View Controller-->
         <scene sceneID="qgb-S8-TZj">
             <objects>
-                <viewController storyboardIdentifier="PhotoAlbumIdentifier" id="fz5-UM-Gp6" customClass="PhotoAlbumView" customModule="Virtual_Tourist" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="PhotoAlbumIdentifier" id="fz5-UM-Gp6" customClass="PhotoAlbumViewController" customModule="Virtual_Tourist" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="J4w-WZ-xsJ">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>

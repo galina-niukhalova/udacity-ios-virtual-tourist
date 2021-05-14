@@ -13,10 +13,12 @@ class TravelLocationsMapView: UIViewController, MKMapViewDelegate {
     @IBOutlet var mapView: MKMapView!
     
     var dataController: DataController!
+    var fetchResultsController: NSFetchedResultsController<Pin>!
+    
     let defaults = UserDefaults.standard
+    
     let defaultsMapRegionKey = "MapRegion"
     let photoAlbumStoryboardId = "PhotoAlbumIdentifier"
-    var fetchResultsController: NSFetchedResultsController<Pin>!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -136,7 +138,7 @@ class TravelLocationsMapView: UIViewController, MKMapViewDelegate {
     // MARK: Navigate to Photo Album when a pin is tapped
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
-        let photoAlbumViewController = self.storyboard!.instantiateViewController(withIdentifier: photoAlbumStoryboardId) as! PhotoAlbumView
+        let photoAlbumViewController = self.storyboard!.instantiateViewController(withIdentifier: photoAlbumStoryboardId) as! PhotoAlbumViewController
         let pinCoordinate = view.annotation?.coordinate
         
         if let pinCoordinate = pinCoordinate {
