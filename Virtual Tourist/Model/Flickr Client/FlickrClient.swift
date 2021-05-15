@@ -14,15 +14,14 @@ class FlickrClient {
     static let perPage = 30
     
     enum Endpoints {
-        case searchPhotos(Double, Double)
+        case searchPhotos(Int, Double, Double)
         
         var stringValue: String {
             switch self {
-            case .searchPhotos(let latitude, let longitude):
-                return "\(baseUrl)/?method=flickr.photos.search&api_key=\(apiKey)&lat=\(latitude)&lon=\(longitude)&per_page=\(perPage)&format=json&nojsoncallback=1"
+            case .searchPhotos(let page, let latitude, let longitude):
+                return "\(baseUrl)/?method=flickr.photos.search&api_key=\(apiKey)&lat=\(latitude)&lon=\(longitude)&per_page=\(perPage)&page=\(page)&format=json&nojsoncallback=1"
             }
         }
-            
             
         var url: URL {
             return URL(string: stringValue)!
@@ -30,8 +29,8 @@ class FlickrClient {
     }
     
     
-    class func getImages(latitude: Double, longitude: Double, completion: @escaping ([String], Error?) -> Void) {
-        var request = URLRequest(url: Endpoints.searchPhotos(latitude, longitude).url)
+    class func getImages(page: Int, latitude: Double, longitude: Double, completion: @escaping ([String], Int, Error?) -> Void) {
+        var request = URLRequest(url: Endpoints.searchPhotos(page, latitude, longitude).url)
         
         request.httpMethod = "GET"
         
@@ -41,7 +40,7 @@ class FlickrClient {
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             guard let data = data else {
                 DispatchQueue.main.async {
-                    completion([], error)
+                    completion([], 0, error)
                 }
                 return
             }
@@ -58,11 +57,11 @@ class FlickrClient {
                 }
                 
                 DispatchQueue.main.async {
-                    completion(photosUrl, nil)
+                    completion(photosUrl, responseObject.photos.pages, nil)
                 }
             } catch {
                 DispatchQueue.main.async {
-                    completion([], error)
+                    completion([], 0, error)
                 }
             }
         }

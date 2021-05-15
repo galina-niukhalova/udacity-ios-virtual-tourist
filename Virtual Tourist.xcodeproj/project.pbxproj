@@ -15,6 +15,8 @@
 		FE28530D2644EBBE0003B671 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FE28530C2644EBBE0003B671 /* Assets.xcassets */; };
 		FE2853102644EBBE0003B671 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FE28530E2644EBBE0003B671 /* LaunchScreen.storyboard */; };
 		FE5164B0264BA8020057C445 /* PhotoAlbumCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE5164AF264BA8020057C445 /* PhotoAlbumCollectionViewCell.swift */; };
+		FE7F627D264FF88F0020D3CF /* Pin+Extentions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE7F627C264FF88F0020D3CF /* Pin+Extentions.swift */; };
+		FE7F6280264FF8D90020D3CF /* Photo+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE7F627F264FF8D90020D3CF /* Photo+Extensions.swift */; };
 		FE891CF7264AD911004F09E9 /* FlickrClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE891CF6264AD911004F09E9 /* FlickrClient.swift */; };
 		FE891CFC264B7DB2004F09E9 /* SearchPhotos.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE891CFB264B7DB2004F09E9 /* SearchPhotos.swift */; };
 		FEB174652649159800E80CEA /* PhotoAlbumViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEB174642649159800E80CEA /* PhotoAlbumViewController.swift */; };
@@ -32,6 +34,8 @@
 		FE28530F2644EBBE0003B671 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		FE2853112644EBBE0003B671 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		FE5164AF264BA8020057C445 /* PhotoAlbumCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoAlbumCollectionViewCell.swift; sourceTree = "<group>"; };
+		FE7F627C264FF88F0020D3CF /* Pin+Extentions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Pin+Extentions.swift"; sourceTree = "<group>"; };
+		FE7F627F264FF8D90020D3CF /* Photo+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Photo+Extensions.swift"; sourceTree = "<group>"; };
 		FE891CF6264AD911004F09E9 /* FlickrClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlickrClient.swift; sourceTree = "<group>"; };
 		FE891CFB264B7DB2004F09E9 /* SearchPhotos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchPhotos.swift; sourceTree = "<group>"; };
 		FEB174642649159800E80CEA /* PhotoAlbumViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoAlbumViewController.swift; sourceTree = "<group>"; };
@@ -83,6 +87,7 @@
 		FE2853182644EC050003B671 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				FE7F627B264FF8500020D3CF /* Managed Object Extensions */,
 				FE891CF9264B7C35004F09E9 /* Flickr Response */,
 				FE891CF5264AD900004F09E9 /* Flickr Client */,
 				FEB1746D264931C800E80CEA /* VirtualTourist.xcdatamodeld */,
@@ -123,6 +128,15 @@
 				FE28530E2644EBBE0003B671 /* LaunchScreen.storyboard */,
 			);
 			path = Storyboards;
+			sourceTree = "<group>";
+		};
+		FE7F627B264FF8500020D3CF /* Managed Object Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				FE7F627C264FF88F0020D3CF /* Pin+Extentions.swift */,
+				FE7F627F264FF8D90020D3CF /* Photo+Extensions.swift */,
+			);
+			path = "Managed Object Extensions";
 			sourceTree = "<group>";
 		};
 		FE891CF5264AD900004F09E9 /* Flickr Client */ = {
@@ -214,9 +228,11 @@
 				FE2853052644EBBB0003B671 /*  TravelLocationsMapView.swift in Sources */,
 				FE0329B62649342B00919166 /* DataController.swift in Sources */,
 				FE891CF7264AD911004F09E9 /* FlickrClient.swift in Sources */,
+				FE7F6280264FF8D90020D3CF /* Photo+Extensions.swift in Sources */,
 				FEB1746F264931C800E80CEA /* VirtualTourist.xcdatamodeld in Sources */,
 				FE2853012644EBBB0003B671 /* AppDelegate.swift in Sources */,
 				FE5164B0264BA8020057C445 /* PhotoAlbumCollectionViewCell.swift in Sources */,
+				FE7F627D264FF88F0020D3CF /* Pin+Extentions.swift in Sources */,
 				FE2853032644EBBB0003B671 /* SceneDelegate.swift in Sources */,
 				FE891CFC264B7DB2004F09E9 /* SearchPhotos.swift in Sources */,
 				FEB174652649159800E80CEA /* PhotoAlbumViewController.swift in Sources */,

@@ -13,6 +13,7 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
     @IBOutlet var mapView: MKMapView!
     @IBOutlet var collectionView: UICollectionView!
     @IBOutlet var flowLayout: UICollectionViewFlowLayout!
+    @IBOutlet var newCollectionButton: UIButton!
     
     var pin: Pin!
     
@@ -21,8 +22,13 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
     var photosUrl: [String] = []
     var photos: [Photo] = []
     
+    // Flickr search photos response
+    var availablePages: Int = 1
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        showNavigationBar()
         
         addPinToTheMap()
         zoomIntoRegion()
@@ -34,14 +40,28 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
             collectionView.reloadData()
         } else {
             // load photos from Flickr
-            FlickrClient.getImages(latitude: pin.latitude, longitude: pin.longitude, completion: handleLoadingPhotosFromFlickr)
+            FlickrClient.getImages(page: 1, latitude: pin.latitude, longitude: pin.longitude, completion: handleLoadingPhotosFromFlickr)
         }
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        showNavigationBar()
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
         setCollectionStyling()
+    }
+    
+    @IBAction func handleNewCollectionButtonClick(_ sender: Any) {
+        photosUrl = []
+        photos = []
+        collectionView.reloadData()
+        
+        FlickrClient.getImages(page: getRandomPage(), latitude: pin.latitude, longitude: pin.longitude, completion: handleLoadingPhotosFromFlickr)
     }
     
     func setCollectionStyling() {
@@ -58,6 +78,19 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
         flowLayout.minimumLineSpacing = space
         
         flowLayout.itemSize = CGSize(width: dimension, height: dimension)
+    }
+    
+    func showNavigationBar() {
+        navigationController?.isNavigationBarHidden = false
+    }
+    
+    func setNewCollectionButtonState() {
+        print("isEnabled: \(isPhotosLoading()), photosURL: \(photosUrl.count), photos: \(photos.count)")
+        newCollectionButton.isEnabled = !isPhotosLoading()
+    }
+    
+    func isPhotosLoading() -> Bool {
+        return photosUrl.count > photos.count
     }
     
     // MARK: Map
@@ -113,10 +146,36 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
         return cell
     }
     
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        guard !isPhotosLoading() else {
+            // photos are still loading
+            return
+        }
+        
+        let indexToDelete = indexPath.row
+        
+        removePhotoFromPersistentStore(index: indexToDelete)
+
+        
+        if photos.count > indexToDelete {
+            photos.remove(at: indexToDelete)
+        }
+        
+        
+        if photosUrl.count > indexToDelete {
+            photosUrl.remove(at: indexToDelete)
+        }
+        
+        collectionView.reloadData()
+    }
+    
     // MARK: Flickr
     
-    func handleLoadingPhotosFromFlickr(photosUrl: [String], error: Error?) {
+    func handleLoadingPhotosFromFlickr(photosUrl: [String], pages: Int, error: Error?) {
         self.photosUrl = photosUrl
+        availablePages = pages
+        
+        setNewCollectionButtonState()
         collectionView.reloadData()
         
         // No images for the pin
@@ -131,6 +190,7 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
                 
                 DispatchQueue.main.async {
                     self.collectionView.reloadData()
+                    self.setNewCollectionButtonState()
                 }
             }
         }
@@ -153,6 +213,10 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
         }
     }
     
+    func getRandomPage() -> Int {
+        return Int.random(in: 1...availablePages)
+    }
+    
     // MARK: Persistent Store
     
     func addPhotoToPersistentStore(data: Data) -> Photo {
@@ -160,11 +224,16 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
         
         photo.pin = self.pin
         photo.data = data
-        photo.creationDate = Date()
         
-        try? self.dataController.viewContext.save()
+        try? dataController.viewContext.save()
         
         return photo
+    }
+    
+    func removePhotoFromPersistentStore(index: Int) {
+        dataController.viewContext.delete(photos[index])
+        
+        try? dataController.viewContext.save()
     }
     
     

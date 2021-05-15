@@ -34,7 +34,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="JuF-54-TnQ">
-                                <rect key="frame" x="0.0" y="88" width="414" height="774"/>
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="862"/>
                                 <connections>
                                     <outlet property="delegate" destination="yoM-qn-Stq" id="xxU-2G-TLm"/>
                                 </connections>
@@ -44,19 +44,21 @@
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="JuF-54-TnQ" firstAttribute="leading" secondItem="GEf-o4-zoY" secondAttribute="leading" id="KHQ-Zf-3SI"/>
-                            <constraint firstItem="JuF-54-TnQ" firstAttribute="top" secondItem="GEf-o4-zoY" secondAttribute="top" id="PqD-8K-z2w"/>
+                            <constraint firstItem="JuF-54-TnQ" firstAttribute="top" secondItem="GEf-o4-zoY" secondAttribute="top" constant="-88" id="PqD-8K-z2w"/>
                             <constraint firstItem="GEf-o4-zoY" firstAttribute="bottom" secondItem="JuF-54-TnQ" secondAttribute="bottom" id="TTL-ee-PKc"/>
                             <constraint firstItem="GEf-o4-zoY" firstAttribute="trailing" secondItem="JuF-54-TnQ" secondAttribute="trailing" id="ou0-sR-GsT"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" id="1Lb-y4-BuP"/>
+                    <navigationItem key="navigationItem" id="1Lb-y4-BuP">
+                        <barButtonItem key="backBarButtonItem" title="OK" id="ftv-mt-9Eg"/>
+                    </navigationItem>
                     <connections>
                         <outlet property="mapView" destination="JuF-54-TnQ" id="JdR-qb-xON"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="0Ng-7H-CzP" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="688" y="117"/>
+            <point key="canvasLocation" x="686.95652173913049" y="116.51785714285714"/>
         </scene>
         <!--Photo Album View Controller-->
         <scene sceneID="qgb-S8-TZj">
@@ -121,6 +123,9 @@
                                 <fontDescription key="fontDescription" name=".AppleSystemUIFont" family=".AppleSystemUIFont" pointSize="20"/>
                                 <inset key="titleEdgeInsets" minX="0.0" minY="10" maxX="0.0" maxY="10"/>
                                 <state key="normal" title="New Collection"/>
+                                <connections>
+                                    <action selector="handleNewCollectionButtonClick:" destination="fz5-UM-Gp6" eventType="touchUpInside" id="Vz3-0m-Ttd"/>
+                                </connections>
                             </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="4at-uI-aC1"/>
@@ -138,11 +143,14 @@
                             <constraint firstItem="e1T-sC-nqa" firstAttribute="leading" secondItem="4at-uI-aC1" secondAttribute="leading" id="z8f-uY-xzj"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" id="lZ3-uh-lC8" customClass="P"/>
+                    <navigationItem key="navigationItem" id="lZ3-uh-lC8" customClass="P">
+                        <barButtonItem key="backBarButtonItem" title="OK" id="gwb-YM-gHT"/>
+                    </navigationItem>
                     <connections>
                         <outlet property="collectionView" destination="6Qz-de-MdP" id="x5O-NR-7ap"/>
                         <outlet property="flowLayout" destination="o69-nq-HPk" id="tSv-ci-4Zq"/>
                         <outlet property="mapView" destination="Ss7-lC-hGI" id="aei-z8-InY"/>
+                        <outlet property="newCollectionButton" destination="e1T-sC-nqa" id="XbL-Mt-ohr"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="sj8-fD-VL1" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>

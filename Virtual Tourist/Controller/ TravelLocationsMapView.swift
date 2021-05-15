@@ -13,53 +13,40 @@ class TravelLocationsMapView: UIViewController, MKMapViewDelegate {
     @IBOutlet var mapView: MKMapView!
     
     var dataController: DataController!
-    var fetchResultsController: NSFetchedResultsController<Pin>!
     
     let defaults = UserDefaults.standard
-    
     let defaultsMapRegionKey = "MapRegion"
+    
     let photoAlbumStoryboardId = "PhotoAlbumIdentifier"
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        setRegionFromDefaults()
+        hideNavigationBar()
+        
+        setRegionFromUserDefaults()
         displayExistingPins()
         
         addGestureRecognizer(gestureRecognizerType: UILongPressGestureRecognizer.self)
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        hideNavigationBar()
+    }
+    
+    func hideNavigationBar() {
+        navigationController?.isNavigationBarHidden = true
+    }
+    
     func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
-        persistRegion()
+        addCurrentRegionToUserDefaults()
     }
-    
-    // MARK: Load existing pins
-    
-    func getPersistedPins(predicate: NSPredicate? = nil) -> [Pin] {
-        let fetchRequest: NSFetchRequest<Pin> = Pin.fetchRequest()
-        
-        // sort
-        let sortDescriptor = NSSortDescriptor(key: "creationDate", ascending: false)
-        fetchRequest.sortDescriptors = [sortDescriptor]
-        
-        // filter
-        if let predicate = predicate {
-            fetchRequest.predicate = predicate
-        }
-        
-        let fetchResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: nil)
-        
-        do {
-            try fetchResultsController.performFetch()
-            
-            return fetchResultsController.fetchedObjects ?? []
-        } catch {
-            fatalError("The fetch could not be performed: \(error.localizedDescription)")
-        }
-    }
+
     
     func displayExistingPins() {
-        let pins = getPersistedPins()
+        let pins = fetchPinsFromPersistentStore()
         
         for pin in pins {
             let coordinate = CLLocationCoordinate2D(latitude: pin.latitude, longitude: pin.longitude)
@@ -67,35 +54,11 @@ class TravelLocationsMapView: UIViewController, MKMapViewDelegate {
         }
     }
     
-    // MARK: Persist the center of the map and the zoom level
-    
-    func persistRegion() {
-        let center = mapView.region.center
-        let span = mapView.region.span
+    func addPinToTheMap(_ coordinate: CLLocationCoordinate2D) {
+        let annotation = MKPointAnnotation()
         
-        let lat = Double(center.latitude)
-        let lng = Double(center.longitude)
-        let latDelta = Double(span.latitudeDelta)
-        let lngDelta = Double(span.longitudeDelta)
-        
-        let regionDict = ["latitude": lat, "longitude": lng, "latitudeDelta": latDelta, "longitudeDelta": lngDelta]
-        
-        defaults.set(regionDict, forKey: defaultsMapRegionKey)
-    }
-
-    func setRegionFromDefaults() {
-        let regionDict = defaults.object(forKey: defaultsMapRegionKey) as? [String: Double] ?? [String: Double]()
-        
-        if let lat = regionDict["latitude"],
-           let lng = regionDict["longitude"],
-           let latDelta = regionDict["latitudeDelta"],
-           let lngDelta = regionDict["longitudeDelta"] {
-            let span = MKCoordinateSpan(latitudeDelta: latDelta, longitudeDelta: lngDelta)
-            let location = CLLocationCoordinate2DMake(lat, lng)
-            let region = MKCoordinateRegion(center: location, span: span)
-            
-            mapView.setRegion(region, animated: false)
-        }
+        annotation.coordinate = coordinate
+        mapView.addAnnotation(annotation)
     }
 
     
@@ -113,26 +76,8 @@ class TravelLocationsMapView: UIViewController, MKMapViewDelegate {
             let coordinate = mapView.convert(location, toCoordinateFrom: mapView)
             
             addPinToTheMap(coordinate)
-            persistPin(coordinate)
+            addPinToPersistentStore(coordinate)
         }
-    }
-    
-    func addPinToTheMap(_ coordinate: CLLocationCoordinate2D) {
-        let annotation = MKPointAnnotation()
-        
-        annotation.coordinate = coordinate
-        mapView.addAnnotation(annotation)
-    }
-    
-    func persistPin(_ coordinate: CLLocationCoordinate2D) {
-        let pin = Pin(context: dataController.viewContext)
-
-        pin.latitude = coordinate.latitude
-        pin.longitude = coordinate.longitude
-        pin.creationDate = Date()
-        
-        try? dataController.viewContext.save()
-        
     }
     
     // MARK: Navigate to Photo Album when a pin is tapped
@@ -142,9 +87,10 @@ class TravelLocationsMapView: UIViewController, MKMapViewDelegate {
         let pinCoordinate = view.annotation?.coordinate
         
         if let pinCoordinate = pinCoordinate {
+            // filter by geo location
             let predicate = NSPredicate(format: "latitude == %@ && longitude == %@", argumentArray: [pinCoordinate.latitude, pinCoordinate.longitude])
             
-            let pins = getPersistedPins(predicate: predicate)
+            let pins = fetchPinsFromPersistentStore(predicate: predicate)
             
             if pins.count > 0 {
                 photoAlbumViewController.pin = pins[0]
@@ -156,5 +102,68 @@ class TravelLocationsMapView: UIViewController, MKMapViewDelegate {
             
             mapView.deselectAnnotation(view.annotation, animated: false)
         }
+    }
+    
+    // MARK: UserDefaults
+    
+    func addCurrentRegionToUserDefaults() {
+        let center = mapView.region.center
+        let span = mapView.region.span
+        
+        let lat = Double(center.latitude)
+        let lng = Double(center.longitude)
+        let latDelta = Double(span.latitudeDelta)
+        let lngDelta = Double(span.longitudeDelta)
+        
+        let regionDict = ["latitude": lat, "longitude": lng, "latitudeDelta": latDelta, "longitudeDelta": lngDelta]
+        
+        defaults.set(regionDict, forKey: defaultsMapRegionKey)
+    }
+
+    func setRegionFromUserDefaults() {
+        let regionDict = defaults.object(forKey: defaultsMapRegionKey) as? [String: Double] ?? [String: Double]()
+        
+        if let lat = regionDict["latitude"],
+           let lng = regionDict["longitude"],
+           let latDelta = regionDict["latitudeDelta"],
+           let lngDelta = regionDict["longitudeDelta"] {
+            let span = MKCoordinateSpan(latitudeDelta: latDelta, longitudeDelta: lngDelta)
+            let location = CLLocationCoordinate2DMake(lat, lng)
+            let region = MKCoordinateRegion(center: location, span: span)
+            
+            mapView.setRegion(region, animated: false)
+        }
+    }
+    
+    
+    // MARK: Persistent Store
+    
+    func fetchPinsFromPersistentStore(predicate: NSPredicate? = nil) -> [Pin] {
+        let fetchRequest: NSFetchRequest<Pin> = Pin.fetchRequest()
+        
+        // sort
+        let sortDescriptor = NSSortDescriptor(key: "creationDate", ascending: false)
+        fetchRequest.sortDescriptors = [sortDescriptor]
+        
+        // filter
+        if let predicate = predicate {
+            fetchRequest.predicate = predicate
+        }
+        
+        do {
+            let result = try dataController.viewContext.fetch(fetchRequest)
+            return result
+        } catch {
+            fatalError("The fetch could not be performed: \(error.localizedDescription)")
+        }
+    }
+    
+    func addPinToPersistentStore(_ coordinate: CLLocationCoordinate2D) {
+        let pin = Pin(context: dataController.viewContext)
+
+        pin.latitude = coordinate.latitude
+        pin.longitude = coordinate.longitude
+        
+        try? dataController.viewContext.save()
     }
 }
