@@ -43,7 +43,7 @@ class TravelLocationsMapView: UIViewController, MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
         addCurrentRegionToUserDefaults()
     }
-
+    
     
     func displayExistingPins() {
         let pins = fetchPinsFromPersistentStore()
@@ -60,7 +60,7 @@ class TravelLocationsMapView: UIViewController, MKMapViewDelegate {
         annotation.coordinate = coordinate
         mapView.addAnnotation(annotation)
     }
-
+    
     
     // MARK: Drop a new pin on tap and hold the map
     
@@ -119,7 +119,7 @@ class TravelLocationsMapView: UIViewController, MKMapViewDelegate {
         
         defaults.set(regionDict, forKey: defaultsMapRegionKey)
     }
-
+    
     func setRegionFromUserDefaults() {
         let regionDict = defaults.object(forKey: defaultsMapRegionKey) as? [String: Double] ?? [String: Double]()
         
@@ -160,7 +160,7 @@ class TravelLocationsMapView: UIViewController, MKMapViewDelegate {
     
     func addPinToPersistentStore(_ coordinate: CLLocationCoordinate2D) {
         let pin = Pin(context: dataController.viewContext)
-
+        
         pin.latitude = coordinate.latitude
         pin.longitude = coordinate.longitude
         

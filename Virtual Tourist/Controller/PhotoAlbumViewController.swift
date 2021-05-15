@@ -32,6 +32,7 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
         
         addPinToTheMap()
         zoomIntoRegion()
+        mapView.disableUserInteractions()
         
         photos = fetchPhotosFromPersistentStore()
         
@@ -85,7 +86,6 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
     }
     
     func setNewCollectionButtonState() {
-        print("isEnabled: \(isPhotosLoading()), photosURL: \(photosUrl.count), photos: \(photos.count)")
         newCollectionButton.isEnabled = !isPhotosLoading()
     }
     
@@ -113,6 +113,7 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
         
         mapView.setRegion(region, animated: false)
     }
+    
     
     // MARK: Collection data
     
@@ -155,7 +156,7 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
         let indexToDelete = indexPath.row
         
         removePhotoFromPersistentStore(index: indexToDelete)
-
+        
         
         if photos.count > indexToDelete {
             photos.remove(at: indexToDelete)

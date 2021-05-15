@@ -22,7 +22,7 @@ class FlickrClient {
                 return "\(baseUrl)/?method=flickr.photos.search&api_key=\(apiKey)&lat=\(latitude)&lon=\(longitude)&per_page=\(perPage)&page=\(page)&format=json&nojsoncallback=1"
             }
         }
-            
+        
         var url: URL {
             return URL(string: stringValue)!
         }
@@ -44,7 +44,7 @@ class FlickrClient {
                 }
                 return
             }
-
+            
             let decoder = JSONDecoder()
             
             do {
