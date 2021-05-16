@@ -83,6 +83,10 @@
                                     <size key="footerReferenceSize" width="0.0" height="0.0"/>
                                     <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                 </collectionViewFlowLayout>
+                                <activityIndicatorView key="backgroundView" hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="medium" id="uff-ZO-zIY">
+                                    <rect key="frame" x="0.0" y="0.0" width="414" height="546"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                </activityIndicatorView>
                                 <cells>
                                     <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="PhotoAlbumCellIdentifier" id="OCt-9V-cQJ" customClass="PhotoAlbumCollectionViewCell" customModule="Virtual_Tourist" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="0.0" width="128" height="128"/>
@@ -114,7 +118,7 @@
                                     <outlet property="delegate" destination="fz5-UM-Gp6" id="xSe-4y-b0z"/>
                                 </connections>
                             </collectionView>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="e1T-sC-nqa">
+                            <button opaque="NO" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="e1T-sC-nqa">
                                 <rect key="frame" x="0.0" y="800" width="414" height="62"/>
                                 <color key="backgroundColor" red="0.93866831985945554" green="0.93866831985945554" blue="0.93866831985945554" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <constraints>
@@ -147,6 +151,7 @@
                         <barButtonItem key="backBarButtonItem" title="OK" id="gwb-YM-gHT"/>
                     </navigationItem>
                     <connections>
+                        <outlet property="activeIndicator" destination="uff-ZO-zIY" id="UyD-ni-VaC"/>
                         <outlet property="collectionView" destination="6Qz-de-MdP" id="x5O-NR-7ap"/>
                         <outlet property="flowLayout" destination="o69-nq-HPk" id="tSv-ci-4Zq"/>
                         <outlet property="mapView" destination="Ss7-lC-hGI" id="aei-z8-InY"/>

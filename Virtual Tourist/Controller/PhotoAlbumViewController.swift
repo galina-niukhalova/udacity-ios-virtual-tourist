@@ -14,6 +14,7 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
     @IBOutlet var collectionView: UICollectionView!
     @IBOutlet var flowLayout: UICollectionViewFlowLayout!
     @IBOutlet var newCollectionButton: UIButton!
+    @IBOutlet var activeIndicator: UIActivityIndicatorView!
     
     var pin: Pin!
     
@@ -39,7 +40,9 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
         if photos.count > 0 {
             // reload UI
             collectionView.reloadData()
+            setNewCollectionButtonState()
         } else {
+            activeIndicator.isHidden = false
             // load photos from Flickr
             FlickrClient.getImages(page: 1, latitude: pin.latitude, longitude: pin.longitude, completion: handleLoadingPhotosFromFlickr)
         }
@@ -60,6 +63,8 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
     @IBAction func handleNewCollectionButtonClick(_ sender: Any) {
         photosUrl = []
         photos = []
+        activeIndicator.isHidden = false
+        newCollectionButton.isEnabled = false
         collectionView.reloadData()
         
         FlickrClient.getImages(page: getRandomPage(), latitude: pin.latitude, longitude: pin.longitude, completion: handleLoadingPhotosFromFlickr)
@@ -177,6 +182,7 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
         availablePages = pages
         
         setNewCollectionButtonState()
+        activeIndicator.isHidden = true
         collectionView.reloadData()
         
         // No images for the pin
