@@ -60,6 +60,8 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
     }
     
     @IBAction func handleNewCollectionButtonClick(_ sender: Any) {
+        removeAllPhotosFromPersistentStore()
+        
         photosUrl = []
         photos = []
         
@@ -245,6 +247,12 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
         dataController.viewContext.delete(photos[index])
         
         try? dataController.viewContext.save()
+    }
+    
+    func removeAllPhotosFromPersistentStore() {
+        for (index, _) in photos.enumerated() {
+            removePhotoFromPersistentStore(index: index)
+        }
     }
     
     
