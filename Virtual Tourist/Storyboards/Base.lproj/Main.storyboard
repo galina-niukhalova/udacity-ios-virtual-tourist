@@ -83,10 +83,6 @@
                                     <size key="footerReferenceSize" width="0.0" height="0.0"/>
                                     <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                 </collectionViewFlowLayout>
-                                <activityIndicatorView key="backgroundView" hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="medium" id="uff-ZO-zIY">
-                                    <rect key="frame" x="0.0" y="0.0" width="414" height="546"/>
-                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                </activityIndicatorView>
                                 <cells>
                                     <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="PhotoAlbumCellIdentifier" id="OCt-9V-cQJ" customClass="PhotoAlbumCollectionViewCell" customModule="Virtual_Tourist" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="0.0" width="128" height="128"/>
@@ -151,7 +147,6 @@
                         <barButtonItem key="backBarButtonItem" title="OK" id="gwb-YM-gHT"/>
                     </navigationItem>
                     <connections>
-                        <outlet property="activeIndicator" destination="uff-ZO-zIY" id="UyD-ni-VaC"/>
                         <outlet property="collectionView" destination="6Qz-de-MdP" id="x5O-NR-7ap"/>
                         <outlet property="flowLayout" destination="o69-nq-HPk" id="tSv-ci-4Zq"/>
                         <outlet property="mapView" destination="Ss7-lC-hGI" id="aei-z8-InY"/>
