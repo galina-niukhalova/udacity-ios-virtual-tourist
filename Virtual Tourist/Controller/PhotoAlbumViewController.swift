@@ -42,7 +42,7 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
             setNewCollectionButtonState()
         } else {
             // No photos in the persistent store, load from flickr
-            collectionView.setLoading(true)
+            setLoadingState()
             FlickrClient.getImages(page: 1, latitude: pin.latitude, longitude: pin.longitude, completion: handleLoadingPhotosFromFlickr)
         }
     }
@@ -65,8 +65,7 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
         photosUrl = []
         photos = []
         
-        collectionView.setLoading(true)
-        newCollectionButton.isEnabled = false
+        setLoadingState()
         collectionView.reloadData()
         
         FlickrClient.getImages(page: getRandomPage(), latitude: pin.latitude, longitude: pin.longitude, completion: handleLoadingPhotosFromFlickr)
@@ -98,6 +97,11 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
     
     func isPhotosLoading() -> Bool {
         return photosUrl.count > photos.count
+    }
+    
+    func setLoadingState() {
+        collectionView.setLoading(true)
+        newCollectionButton.isEnabled = false
     }
     
     // MARK: Map
@@ -189,7 +193,7 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
         
         // No images for the pin
         if photosUrl.count == 0 {
-            collectionView.setEmptyPlaceholder("There is no images for the current location")
+            collectionView.setEmptyPlaceholder("No Images")
         }
         
         for url in photosUrl {
