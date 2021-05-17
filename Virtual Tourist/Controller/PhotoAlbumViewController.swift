@@ -22,9 +22,6 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
     var photosUrl: [String] = []
     var photos: [Photo] = []
     
-    // Flickr search photos response
-    var availablePages: Int = 1
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -185,7 +182,10 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
     
     func handleLoadingPhotosFromFlickr(photosUrl: [String], pages: Int, error: Error?) {
         self.photosUrl = photosUrl
-        availablePages = pages
+        
+        if pin.flickrSearchPagesCount == 0 {
+            updatePinInPersistentStore(flickrSearchPagesCount: pages)
+        }
         
         setNewCollectionButtonState()
         collectionView.setLoading(false)
@@ -197,41 +197,22 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
         }
         
         for url in photosUrl {
-            self.downloadImage(urlString: url) { (data) in
+            FlickrClient.downloadImage(urlString: url) { (data) in
                 let photo = self.addPhotoToPersistentStore(data: data)
                 self.photos.insert(photo, at: 0)
                 
-                DispatchQueue.main.async {
-                    self.collectionView.reloadData()
-                    self.setNewCollectionButtonState()
-                }
+                self.collectionView.reloadData()
+                self.setNewCollectionButtonState()
             }
-        }
-    }
-    
-    func downloadImage(urlString: String, completion: @escaping (Data) -> Void) {
-        let url = URL(string: urlString)
-        
-        if let url = url {
-            let imageTask = URLSession.shared.dataTask(with: url) {
-                data, response, error in
-                guard let data = data else {
-                    return
-                }
-                
-                completion(data)
-            }
-            
-            imageTask.resume()
         }
     }
     
     func getRandomPage() -> Int {
-        if availablePages == 0 {
+        if pin.flickrSearchPagesCount == 0 {
             return 1
         }
         
-        return Int.random(in: 1...availablePages)
+        return Int.random(in: 1...Int(pin.flickrSearchPagesCount))
     }
     
     // MARK: Persistent Store
@@ -276,5 +257,11 @@ class PhotoAlbumViewController: UIViewController, MKMapViewDelegate, UICollectio
         } catch {
             fatalError("The fetch could not be performed: \(error.localizedDescription)")
         }
+    }
+    
+    func updatePinInPersistentStore(flickrSearchPagesCount: Int) {
+        pin.flickrSearchPagesCount = Int16(flickrSearchPagesCount)
+        
+        try? dataController.viewContext.save()
     }
 }
